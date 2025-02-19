@@ -7,7 +7,7 @@
   </head>
   <body>
     <h1 class="title">Калькулятор стоимости автомобиля</h1>
-    <form class="form" name="form" id="form">
+    <form class="form" name="carForm" id="carForm" novalidate>
       <fieldset class="form__field">
         <legend class="form__legend">Марка и модель автомобиля:</legend>
         <div class="form__input-groups">
@@ -123,7 +123,7 @@
               required
             >
               <option value="" class="form__option" disabled selected>
-                -- Выберите коробку передач --
+                -- Выберите тип коробки передач --
               </option>
               <option value="manual" class="form__option">Механика</option>
               <option value="automatic" class="form__option">Автомат</option>
@@ -140,22 +140,22 @@
             <input
               type="radio"
               name="carCondition"
-              id="newCar"
-              value="newCar"
+              id="new"
+              value="new"
               class="form__input"
               required
             />
-            <label for="newCar" class="form__label">Новый</label>
+            <label for="new" class="form__label">Новый</label>
           </div>
           <div class="form__radio-group">
             <input
               type="radio"
               name="carCondition"
-              id="pre-ownedCar"
-              value="pre-ownedCar"
+              id="used"
+              value="used"
               class="form__input"
             />
-            <label for="pre-ownedCar" class="form__label">Подержанный</label>
+            <label for="used" class="form__label">Подержанный</label>
           </div>
           <p class="form__error-msg" id="conditionError"></p>
         </div>
@@ -169,7 +169,7 @@
               name="numOfOwners"
               id="one-two"
               value="1-2"
-              class="form__input js-numOfOwners"
+              class="form__input"
               required
             />
             <label for="one-two" class="form__label">1 или 2</label>
@@ -180,7 +180,7 @@
               name="numOfOwners"
               id="threeMore"
               value="3+"
-              class="form__input js-numOfOwners"
+              class="form__input"
             />
             <label for="threeMore" class="form__label">3 или больше</label>
           </div>
@@ -227,6 +227,7 @@
       </fieldset>
       <button type="submit">Рассчитать примерную стоимость</button>
     </form>
-    <p class="price__paragraph"></p>
+    <p class="price__paragraph" id="priceResult"></p>
+    <script src="assets/script/script.js"></script>
   </body>
 </html>
