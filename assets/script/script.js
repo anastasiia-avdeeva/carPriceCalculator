@@ -1,3 +1,4 @@
+let price = 0;
 const carForm = document.forms.carForm;
 const makeInput = carForm.elements.make;
 const makeError = document.getElementById("makeError");
@@ -9,6 +10,13 @@ const volumeInput = carForm.elements.engineVolume;
 const volumeError = document.getElementById("engineVolumeError");
 const transmissionInput = carForm.elements.transmission;
 const transmissionError = document.getElementById("transmissionError");
+const conditionInput = carForm.elements.carCondition;
+const conditionError = document.getElementById("conditionError");
+const ownersField = document.getElementById("ownersField");
+const ownersInput = carForm.elements.numOfOwners;
+const ownersError = document.getElementById("ownersError");
+const paymentInput = carForm.elements.payment;
+const paymentError = document.getElementById("paymentError");
 
 const models = {
   Renault: ["Renault Duster", "Renault Megane", "Renault Arkana"],
@@ -23,19 +31,9 @@ const formValidity = {
   fuel: false,
   volume: false,
   transmission: false,
-  condition: false,
+  carCondition: false,
   payment: false,
 };
-
-// const formValues = {
-//   make: undefined,
-//   model: undefined,
-//   fuel: undefined,
-//   volume: undefined,
-//   transmission: undefined,
-//   condition: undefined,
-//   payment: undefined,
-// }
 
 const errorMsgs = {
   noMakeErrorMsg: "Пожалуйста, выберите марку автомобиля",
@@ -45,6 +43,9 @@ const errorMsgs = {
   invalidVolumeErrorMsg:
     "Объем двигателя не может быть меньше 1.1 литра и больше 3.5 литра",
   noTransmissionErrorMsg: "Пожалуйста, выберите тип коробки передач",
+  noConditionErrorMsg: "Пожалуйста, выберите состояние автомобиля",
+  noOwnersErrorMsg: "Пожалуйстаб выберите количество предыдущих владельцев",
+  noPaymentErrorMsg: "Пожалуйста, выберите способ оплаты",
 };
 
 function updateValidity(key, isValid) {
@@ -58,7 +59,7 @@ function toggleDisabledState(element, disable = true) {
 }
 
 function hideOrShowElem(elem, hide = true) {
-  hide ? (elem.display = "none") : (elem.display = "block");
+  hide ? (elem.style.display = "none") : (elem.style.display = "block");
 }
 
 function pasteMsg(element, message) {
@@ -89,28 +90,6 @@ function showModels(make) {
   toggleDisabledState(modelInput, false);
 }
 
-// function processMakeChange() {
-//   showModels(makeInput.value);
-//   toggleErrorMsg(true, makeError, "");
-//   if (!formValidity["make"]) {
-//     updateValidity("make", true);
-//   }
-// }
-
-// function processModelChange() {
-//   toggleErrorMsg(true, modelError, "");
-//   if (!formValidity["model"]) {
-//     updateValidity("model", true);
-//   }
-// }
-
-// function processFuelChange() {
-//   toggleErrorMsg(true, fuelError, "");
-//   if (!formValidity["fuel"]) {
-//     updateValidity("fuel", true);
-//   }
-// }
-
 function isVolumeValid() {
   const volume = volumeInput.value;
   let valid = true;
@@ -128,23 +107,34 @@ function isVolumeValid() {
 }
 
 function processVolumeChange() {
-  //   const volume = Number(volumeStr);
   const [valid, msg] = isVolumeValid();
   toggleErrorMsg(valid, volumeError, msg);
   updateValidity("volume", valid);
 }
 
-// function processTransmissionChange() {
-//   toggleErrorMsg(true, transmissionError, "");
-//   if (!formValidity["transmission"]) {
-//     updateValidity("transmission", true);
-//   }
-// }
+function isChecked(nodeList) {
+  const array = Array.from(nodeList);
+  const isChecked = array.some((input) => input.checked);
+  return isChecked;
+}
+
+function toggleOwnersState(conditionValue) {
+  if (conditionValue === "used") {
+    hideOrShowElem(ownersField, false);
+    formValidity.numOfOwners = isChecked(ownersInput);
+  } else if (conditionValue === "new") {
+    hideOrShowElem(ownersField);
+    delete formValidity.numOfOwners;
+  }
+}
 
 function processRadioOrSelectChange(errorElem, name) {
   if (name === "make") {
     showModels(makeInput.value);
+  } else if (name === "carCondition") {
+    toggleOwnersState(conditionInput.value);
   }
+
   toggleErrorMsg(true, errorElem, "");
   if (!formValidity[name]) {
     updateValidity(name, true);
@@ -162,6 +152,15 @@ function processFormChange(evt) {
       "transmission",
       () => processRadioOrSelectChange(transmissionError, "transmission"),
     ],
+    [
+      "carCondition",
+      () => processRadioOrSelectChange(conditionError, "carCondition"),
+    ],
+    [
+      "numOfOwners",
+      () => processRadioOrSelectChange(ownersError, "numOfOwners"),
+    ],
+    ["payment", () => processRadioOrSelectChange(paymentError, "payment")],
   ]);
 
   if (inputTypeHandlers.has(input.name)) {
