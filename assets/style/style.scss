@@ -1,5 +1,37 @@
 @import "./normalize.css";
 
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 20px 50px;
+}
+
 #ownersField {
   display: none;
+}
+
+.form__input-groups,
+.form__radio-groups {
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form__input-group {
+  height: 30px;
+}
+
+.form__error-msg {
+  display: none;
+}
+
+.form__legend {
+  font-weight: bold;
+}
+
+.form__input--num {
+  width: 50px;
 }
