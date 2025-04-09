@@ -1,4 +1,13 @@
-let price = 0;
+// let price = 0;
+const carPriceInfo = {
+  basePrice: 0,
+  fuel: 1,
+  volume: 1,
+  transmission: 0,
+  condition: 1,
+  owners: 1,
+};
+
 const carForm = document.forms.carForm;
 
 const makeInput = carForm.elements.make;
@@ -26,6 +35,8 @@ const ownersError = document.getElementById("ownersError");
 const paymentInput = carForm.elements.payment;
 const paymentError = document.getElementById("paymentError");
 
+const priceResultElem = document.getElementById("priceResult");
+
 const models = {
   Renault: ["Renault Duster", "Renault Megane", "Renault Arkana"],
   Opel: ["Opel Astra", "Opel Insignia", "Opel Mokka"],
@@ -50,20 +61,20 @@ const basePrices = {
 
 const fuelPriceFactor = {
   petrol: 1.0,
-  dieasel: 1.05,
+  diesel: 1.05,
   gas: 0.95,
   electricity: 1.2,
 };
 
 const engVolPriceFactor = {
   1.6: 1.0,
-  "2.0": 1.1,
+  2.0: 1.1,
   2.5: 1.2,
   3.5: 1.3,
 };
 
-const transmissionPriceFactor = {
-  manual: 1.0,
+const transmissionPriceChange = {
+  manual: 0,
   automatic: 50000,
   cvt: 30000,
 };
@@ -139,8 +150,23 @@ function createModelOption(model) {
 }
 
 function showModels(make) {
+  modelInput.innerHTML = "";
   models[make].forEach((item) => createModelOption(item));
   toggleDisabledState(modelInput, false);
+}
+
+function calculatePrice() {
+  const { basePrice, fuel, volume, transmission, condition, owners } =
+    carPriceInfo;
+  const price = basePrice * fuel * volume + transmission * condition * owners;
+  priceResultElem.textContent = new Intl.NumberFormat("ru-RU", {
+    style: "currency",
+    currency: "rub",
+  }).format(price);
+}
+
+function updateCarPriceInfo(key, value) {
+  carPriceInfo[key] = value;
 }
 
 function isVolumeValid() {
@@ -185,12 +211,21 @@ function processRadioOrSelectChange(errorElem, name) {
   switch (name) {
     case "make":
       showModels(makeInput.value);
+      return;
+
+    case "model":
+      updateCarPriceInfo("basePrice", basePrices[modelInput.value]);
+      break;
+
+    case "fuel":
+      updateCarPriceInfo("fuel", fuelPriceFactor[fuelInput.value]);
       break;
 
     case "carCondition":
       toggleOwnersState(conditionInput.value);
   }
 
+  calculatePrice();
   toggleErrorMsg(true, errorElem, "");
   if (!formValidity[name]) {
     updateValidity(name, true);
