@@ -16,7 +16,7 @@ body {
   margin: 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
 }
 
 .form__input-group {
@@ -25,6 +25,8 @@ body {
 
 .form__error-msg {
   display: none;
+  color: red;
+  font-style: italic;
 }
 
 .form__legend {
@@ -33,4 +35,8 @@ body {
 
 .form__input--num {
   width: 50px;
+}
+
+.price-paragraph {
+  display: none;
 }
