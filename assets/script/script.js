@@ -26,6 +26,7 @@ const paymentInput = carForm.elements.payment;
 const paymentError = document.getElementById("paymentError");
 
 const resetBtn = document.getElementById("resetBtn");
+const priceParElem = document.getElementById("pricePar");
 const priceResultElem = document.getElementById("priceResult");
 
 const models = {
@@ -139,7 +140,7 @@ const inputTypeHandlers = new Map([
 ]);
 
 function processFormChange(evt) {
-  hideOrShowElem(priceResultElem);
+  hideOrShowElem(priceParElem);
   const input = evt.target;
   if (inputTypeHandlers.has(input.name)) {
     inputTypeHandlers.get(input.name)();
@@ -148,7 +149,7 @@ function processFormChange(evt) {
   }
 }
 
-function hideOrShowElem(elem, hide = true) {
+function hideOrShowElem(elem, hide = true, block = true) {
   hide ? (elem.style.display = "none") : (elem.style.display = "block");
 }
 
@@ -178,9 +179,6 @@ function processRadioOrSelectChange(errorElem, name) {
   const updater = priceInfoUpdaters[name];
   if (updater) {
     updater();
-  }
-
-  if (!name === "make") {
     calculatePrice();
   }
 
@@ -308,7 +306,7 @@ carForm.addEventListener("submit", submitForm);
 function submitForm(evt) {
   evt.preventDefault();
   if (isFormFilled()) {
-    hideOrShowElem(priceResultElem, false);
+    hideOrShowElem(priceParElem, false);
     return;
   }
   showMissingFields();
@@ -344,6 +342,7 @@ function resetForm() {
   carForm.reset();
   deleteAllErrors();
   toggleOwnersState("new");
+  hideOrShowElem(priceParElem);
   resetObject(carPriceInfo, initialCarPriceInfo);
   resetObject(formValidity, initialFormValidity);
   return;
