@@ -1,4 +1,3 @@
-// let price = 0;
 const carPriceInfo = {
   basePrice: 0,
   fuel: 1,
@@ -6,6 +5,7 @@ const carPriceInfo = {
   transmission: 0,
   condition: 1,
   owners: 1,
+  payment: 1,
 };
 
 const carForm = document.forms.carForm;
@@ -89,6 +89,8 @@ const numOfOwnersPriceFactor = {
   "3+": 0.9,
 };
 
+const paymentPriceFactor = { card: 1, cash: 0.95, invoice: 1.05 };
+
 const formValidity = {
   make: false,
   model: false,
@@ -140,25 +142,36 @@ function toggleErrorMsg(condition, element, msg) {
   }
 }
 
-function createModelOption(model) {
+function createModelOption(model, placeholder = true) {
   const option = document.createElement("option");
   const className = "form__option";
   option.classList.add(className);
-  option.value = model;
-  option.textContent = model;
-  modelInput.append(option);
+  if (placeholder) {
+    option.value = "";
+    option.setAttribute("disabled", true);
+    option.setAttribute("selected", true);
+    option.textContent = "-- Выберите модель автомобиля --";
+  } else {
+    option.value = model;
+    option.textContent = model;
+  }
+  return option;
 }
 
 function showModels(make) {
   modelInput.innerHTML = "";
-  models[make].forEach((item) => createModelOption(item));
+  modelInput.append(createModelOption("", true));
+  models[make].forEach((item) =>
+    modelInput.append(createModelOption(item, false))
+  );
   toggleDisabledState(modelInput, false);
 }
 
 function calculatePrice() {
-  const { basePrice, fuel, volume, transmission, condition, owners } =
+  const { basePrice, fuel, volume, transmission, condition, owners, payment } =
     carPriceInfo;
-  const price = basePrice * fuel * volume + transmission * condition * owners;
+  const price =
+    basePrice * fuel * volume * condition * owners * payment + transmission;
   priceResultElem.textContent = new Intl.NumberFormat("ru-RU", {
     style: "currency",
     currency: "rub",
@@ -169,8 +182,7 @@ function updateCarPriceInfo(key, value) {
   carPriceInfo[key] = value;
 }
 
-function isVolumeValid() {
-  const volume = volumeInput.value;
+function isVolumeValid(volume) {
   let valid = true;
   let msg = "";
 
@@ -185,44 +197,67 @@ function isVolumeValid() {
   return [valid, msg];
 }
 
-function processVolumeChange() {
-  const [valid, msg] = isVolumeValid();
-  toggleErrorMsg(valid, volumeError, msg);
-  updateValidity("volume", valid);
+function calcVolumePriceFactor(volume) {
+  if (volume <= 1.6) {
+    return engVolPriceFactor[1.6];
+  } else if (volume <= 2.0) {
+    return engVolPriceFactor[2.0];
+  } else if (volume <= 2.5) {
+    return engVolPriceFactor[2.5];
+  } else {
+    return engVolPriceFactor[3.5];
+  }
 }
 
-function isChecked(nodeList) {
-  const array = Array.from(nodeList);
-  const isChecked = array.some((input) => input.checked);
-  return isChecked;
+function processVolumeChange() {
+  const volume = volumeInput.value;
+  const [valid, msg] = isVolumeValid(volume);
+  if (valid) {
+    updateCarPriceInfo("volume", calcVolumePriceFactor(volume));
+    calculatePrice();
+  }
+  updateValidity("volume", valid);
+  toggleErrorMsg(valid, volumeError, msg);
 }
 
 function toggleOwnersState(conditionValue) {
   if (conditionValue === "used") {
     hideOrShowElem(ownersField, false);
-    formValidity.numOfOwners = isChecked(ownersInput);
+    formValidity.numOfOwners = true;
   } else if (conditionValue === "new") {
     hideOrShowElem(ownersField);
     delete formValidity.numOfOwners;
   }
 }
 
+const priceInfoUpdaters = {
+  model: () => updateCarPriceInfo("basePrice", basePrices[modelInput.value]),
+  fuel: () => updateCarPriceInfo("fuel", fuelPriceFactor[fuelInput.value]),
+  transmission: () =>
+    updateCarPriceInfo(
+      "transmission",
+      transmissionPriceChange[transmissionInput.value]
+    ),
+  carCondition: () => {
+    updateCarPriceInfo("condition", conditionPriceFactor[conditionInput.value]);
+    toggleOwnersState(conditionInput.value);
+  },
+  numOfOwners: () =>
+    updateCarPriceInfo("owners", numOfOwnersPriceFactor[ownersInput.value]),
+  payment: () =>
+    updateCarPriceInfo("payment", paymentPriceFactor[paymentInput.value]),
+};
+
 function processRadioOrSelectChange(errorElem, name) {
-  switch (name) {
-    case "make":
-      showModels(makeInput.value);
-      return;
+  if (name === "make") {
+    showModels(makeInput.value);
+    return;
+  }
 
-    case "model":
-      updateCarPriceInfo("basePrice", basePrices[modelInput.value]);
-      break;
-
-    case "fuel":
-      updateCarPriceInfo("fuel", fuelPriceFactor[fuelInput.value]);
-      break;
-
-    case "carCondition":
-      toggleOwnersState(conditionInput.value);
+  const updater = priceInfoUpdaters[name];
+  if (updater) {
+    console.log(carPriceInfo);
+    updater();
   }
 
   calculatePrice();
@@ -232,28 +267,25 @@ function processRadioOrSelectChange(errorElem, name) {
   }
 }
 
+const inputTypeHandlers = new Map([
+  ["make", () => processRadioOrSelectChange(makeError, "make")],
+  ["model", () => processRadioOrSelectChange(modelError, "model")],
+  ["fuel", () => processRadioOrSelectChange(fuelError, "fuel")],
+  ["engineVolume", () => processVolumeChange()],
+  [
+    "transmission",
+    () => processRadioOrSelectChange(transmissionError, "transmission"),
+  ],
+  [
+    "carCondition",
+    () => processRadioOrSelectChange(conditionError, "carCondition"),
+  ],
+  ["numOfOwners", () => processRadioOrSelectChange(ownersError, "numOfOwners")],
+  ["payment", () => processRadioOrSelectChange(paymentError, "payment")],
+]);
+
 function processFormChange(evt) {
   const input = evt.target;
-  const inputTypeHandlers = new Map([
-    ["make", () => processRadioOrSelectChange(makeError, "make")],
-    ["model", () => processRadioOrSelectChange(modelError, "model")],
-    ["fuel", () => processRadioOrSelectChange(fuelError, "fuel")],
-    ["engineVolume", () => processVolumeChange()],
-    [
-      "transmission",
-      () => processRadioOrSelectChange(transmissionError, "transmission"),
-    ],
-    [
-      "carCondition",
-      () => processRadioOrSelectChange(conditionError, "carCondition"),
-    ],
-    [
-      "numOfOwners",
-      () => processRadioOrSelectChange(ownersError, "numOfOwners"),
-    ],
-    ["payment", () => processRadioOrSelectChange(paymentError, "payment")],
-  ]);
-
   if (inputTypeHandlers.has(input.name)) {
     inputTypeHandlers.get(input.name)();
   } else {
@@ -261,11 +293,11 @@ function processFormChange(evt) {
   }
 }
 
-function submitForm(evt) {
-  evt.preventDefault();
-  // check if all inputs are valid
-  regForm.reset();
-}
+// function submitForm(evt) {
+//   evt.preventDefault();
+//   // check if all inputs are valid
+//   regForm.reset();
+// }
 
 carForm.addEventListener("change", processFormChange);
-carForm.addEventListener("submit", submitForm);
+// carForm.addEventListener("submit", submitForm);
