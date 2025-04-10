@@ -7,234 +7,243 @@
     <title>Document</title>
   </head>
   <body>
-    <h1 class="title">Калькулятор стоимости автомобиля</h1>
-    <form class="form" name="carForm" id="carForm" novalidate>
-      <fieldset class="form__field">
-        <legend class="form__legend">Марка и модель автомобиля:</legend>
-        <div class="form__input-groups">
-          <div class="form__input-group">
-            <label for="carMake" class="form__label"> Марка автомобиля: </label>
-            <select
-              class="form__input form__select"
-              id="carMake"
-              name="make"
-              required
-            >
-              <option value="" class="form__option" disabled selected>
-                -- Выберите марку автомобиля --
-              </option>
-              <option value="Renault" class="form__option">Renault</option>
-              <option value="Opel" class="form__option">Opel</option>
-              <option value="Mazda" class="form__option">Mazda</option>
-              <option value="Jaguar" class="form__option">Jaguar</option>
-            </select>
-            <p class="form__error-msg" id="makeError"></p>
+    <main class="main">
+      <h1 class="title">Калькулятор стоимости автомобиля</h1>
+      <form class="form" name="carForm" id="carForm" novalidate>
+        <fieldset class="form__field">
+          <legend class="form__legend">Марка и модель автомобиля:</legend>
+          <div class="form__input-groups">
+            <div class="form__input-group">
+              <label for="carMake" class="form__label">
+                Марка автомобиля:
+              </label>
+              <select
+                class="form__input form__select"
+                id="carMake"
+                name="make"
+                required
+              >
+                <option value="" class="form__option" disabled selected>
+                  -- Выберите марку автомобиля --
+                </option>
+                <option value="Renault" class="form__option">Renault</option>
+                <option value="Opel" class="form__option">Opel</option>
+                <option value="Mazda" class="form__option">Mazda</option>
+                <option value="Jaguar" class="form__option">Jaguar</option>
+              </select>
+              <p class="form__error-msg" id="makeError"></p>
+            </div>
+            <div class="form__input-group">
+              <label for="carModel" class="form__label"
+                >Модель автомобиля:
+              </label>
+              <select
+                name="model"
+                id="carModel"
+                class="form__input form__select"
+                required
+                disabled
+              >
+                <option value="" class="form__option" disabled selected>
+                  -- Выберите модель автомобиля --
+                </option>
+              </select>
+              <p class="form__error-msg" id="modelError"></p>
+            </div>
           </div>
-          <div class="form__input-group">
-            <label for="carModel" class="form__label"
-              >Модель автомобиля:
-            </label>
-            <select
-              name="model"
-              id="carModel"
-              class="form__input form__select"
-              required
-              disabled
-            >
-              <option value="" class="form__option" disabled selected>
-                -- Выберите модель автомобиля --
-              </option>
-            </select>
-            <p class="form__error-msg" id="modelError"></p>
+        </fieldset>
+        <fieldset class="form__field">
+          <legend class="form__legend">Тип топлива:</legend>
+          <div class="form__radio-groups">
+            <div class="form__radio-group">
+              <input
+                type="radio"
+                name="fuel"
+                id="petrol"
+                value="petrol"
+                class="form__input"
+                required
+              />
+              <label for="petrol" class="form__label">Бензин</label>
+            </div>
+            <div class="form__radio-group">
+              <input
+                type="radio"
+                name="fuel"
+                id="diesel"
+                value="diesel"
+                class="form__input"
+              />
+              <label for="diesel" class="form__label">Дизель</label>
+            </div>
+            <div class="form__radio-group">
+              <input
+                type="radio"
+                name="fuel"
+                id="gas"
+                value="gas"
+                class="form__input"
+              />
+              <label for="gas" class="form__label">Газ</label>
+            </div>
+            <div class="form__radio-group">
+              <input
+                type="radio"
+                name="fuel"
+                id="electricity"
+                value="electricity"
+                class="form__input"
+              />
+              <label for="electricity" class="form__label">Электричество</label>
+            </div>
+            <p class="form__error-msg" id="fuelError"></p>
           </div>
+        </fieldset>
+        <fieldset class="form__field">
+          <legend class="form__legend">Характеристики двигателя:</legend>
+          <div class="form__input-groups">
+            <div class="form__input-group">
+              <label for="engineVolume" class="form__label"
+                >Объем двигателя (в литрах):
+              </label>
+              <input
+                type="number"
+                name="engineVolume"
+                class="form__input--num"
+                id="engineVolume"
+                min="1.1"
+                max="3.5"
+                step="0.1"
+                required
+              />
+              <p class="form__error-msg" id="engineVolumeError"></p>
+            </div>
+            <div class="form__input-group">
+              <label for="transmission" class="form__label">
+                Коробка передач:
+              </label>
+              <select
+                class="form__input form__select"
+                id="transmission"
+                name="transmission"
+                required
+              >
+                <option value="" class="form__option" disabled selected>
+                  -- Выберите тип коробки передач --
+                </option>
+                <option value="manual" class="form__option">Механика</option>
+                <option value="automatic" class="form__option">Автомат</option>
+                <option value="cvt" class="form__option">Вариатор</option>
+              </select>
+              <p class="form__error-msg" id="transmissionError"></p>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset class="form__field">
+          <legend class="form__legend">Состояние автомобиля:</legend>
+          <div class="form__radio-groups">
+            <div class="form__radio-group">
+              <input
+                type="radio"
+                name="carCondition"
+                id="new"
+                value="new"
+                class="form__input"
+                required
+              />
+              <label for="new" class="form__label">Новый</label>
+            </div>
+            <div class="form__radio-group">
+              <input
+                type="radio"
+                name="carCondition"
+                id="used"
+                value="used"
+                class="form__input"
+              />
+              <label for="used" class="form__label">Подержанный</label>
+            </div>
+            <p class="form__error-msg" id="conditionError"></p>
+          </div>
+        </fieldset>
+        <fieldset class="form__field form__field--hidden" id="ownersField">
+          <legend class="form__legend">Количество владельцев:</legend>
+          <div class="form__radio-groups">
+            <div class="form__radio-group">
+              <input
+                type="radio"
+                name="numOfOwners"
+                id="one-two"
+                value="1-2"
+                class="form__input"
+                checked
+                required
+              />
+              <label for="one-two" class="form__label">1 или 2</label>
+            </div>
+            <div class="form__radio-group">
+              <input
+                type="radio"
+                name="numOfOwners"
+                id="threeMore"
+                value="3+"
+                class="form__input"
+              />
+              <label for="threeMore" class="form__label">3 или больше</label>
+            </div>
+            <p class="form__error-msg" id="ownersError"></p>
+          </div>
+        </fieldset>
+        <fieldset class="form__field">
+          <legend class="form__legend">Способ оплаты:</legend>
+          <div class="form__radio-groups">
+            <div class="form__radio-group">
+              <input
+                type="radio"
+                name="payment"
+                id="card"
+                value="card"
+                class="form__input"
+              />
+              <label for="card" class="form__label">Банковская карта</label>
+            </div>
+            <div class="form__radio-group">
+              <input
+                type="radio"
+                name="payment"
+                id="cash"
+                value="cash"
+                class="form__input"
+              />
+              <label for="cash" class="form__label">Наличные</label>
+            </div>
+            <div class="form__radio-group">
+              <input
+                type="radio"
+                name="payment"
+                id="invoice"
+                value="invoice"
+                class="form__input"
+              />
+              <label for="invoice" class="form__label"
+                >Счет на юридическое лицо</label
+              >
+            </div>
+            <p class="form__error-msg" id="paymentError"></p>
+          </div>
+        </fieldset>
+        <div class="form__btns">
+          <button type="submit" class="form__btn">Рассчитать</button>
+          <button type="button" class="form__btn" id="resetBtn">
+            Очистить
+          </button>
         </div>
-      </fieldset>
-      <fieldset class="form__field">
-        <legend class="form__legend">Тип топлива:</legend>
-        <div class="form__radio-groups">
-          <div class="form__radio-group">
-            <input
-              type="radio"
-              name="fuel"
-              id="petrol"
-              value="petrol"
-              class="form__input"
-              required
-            />
-            <label for="petrol" class="form__label">Бензин</label>
-          </div>
-          <div class="form__radio-group">
-            <input
-              type="radio"
-              name="fuel"
-              id="diesel"
-              value="diesel"
-              class="form__input"
-            />
-            <label for="diesel" class="form__label">Дизель</label>
-          </div>
-          <div class="form__radio-group">
-            <input
-              type="radio"
-              name="fuel"
-              id="gas"
-              value="gas"
-              class="form__input"
-            />
-            <label for="gas" class="form__label">Газ</label>
-          </div>
-          <div class="form__radio-group">
-            <input
-              type="radio"
-              name="fuel"
-              id="electricity"
-              value="electricity"
-              class="form__input"
-            />
-            <label for="electricity" class="form__label">Электричество</label>
-          </div>
-          <p class="form__error-msg" id="fuelError"></p>
-        </div>
-      </fieldset>
-      <fieldset class="form__field">
-        <legend class="form__legend">Характеристики двигателя:</legend>
-        <div class="form__input-groups">
-          <div class="form__input-group">
-            <label for="engineVolume" class="form__label"
-              >Объем двигателя (в литрах):
-            </label>
-            <input
-              type="number"
-              name="engineVolume"
-              class="form__input--num"
-              id="engineVolume"
-              min="1.1"
-              max="3.5"
-              step="0.1"
-              required
-            />
-            <p class="form__error-msg" id="engineVolumeError"></p>
-          </div>
-          <div class="form__input-group">
-            <label for="transmission" class="form__label">
-              Коробка передач:
-            </label>
-            <select
-              class="form__input form__select"
-              id="transmission"
-              name="transmission"
-              required
-            >
-              <option value="" class="form__option" disabled selected>
-                -- Выберите тип коробки передач --
-              </option>
-              <option value="manual" class="form__option">Механика</option>
-              <option value="automatic" class="form__option">Автомат</option>
-              <option value="cvt" class="form__option">Вариатор</option>
-            </select>
-            <p class="form__error-msg" id="transmissionError"></p>
-          </div>
-        </div>
-      </fieldset>
-      <fieldset class="form__field">
-        <legend class="form__legend">Состояние автомобиля:</legend>
-        <div class="form__radio-groups">
-          <div class="form__radio-group">
-            <input
-              type="radio"
-              name="carCondition"
-              id="new"
-              value="new"
-              class="form__input"
-              required
-            />
-            <label for="new" class="form__label">Новый</label>
-          </div>
-          <div class="form__radio-group">
-            <input
-              type="radio"
-              name="carCondition"
-              id="used"
-              value="used"
-              class="form__input"
-            />
-            <label for="used" class="form__label">Подержанный</label>
-          </div>
-          <p class="form__error-msg" id="conditionError"></p>
-        </div>
-      </fieldset>
-      <fieldset class="form__field form__field--hidden" id="ownersField">
-        <legend class="form__legend">Количество владельцев:</legend>
-        <div class="form__radio-groups">
-          <div class="form__radio-group">
-            <input
-              type="radio"
-              name="numOfOwners"
-              id="one-two"
-              value="1-2"
-              class="form__input"
-              checked
-              required
-            />
-            <label for="one-two" class="form__label">1 или 2</label>
-          </div>
-          <div class="form__radio-group">
-            <input
-              type="radio"
-              name="numOfOwners"
-              id="threeMore"
-              value="3+"
-              class="form__input"
-            />
-            <label for="threeMore" class="form__label">3 или больше</label>
-          </div>
-          <p class="form__error-msg" id="ownersError"></p>
-        </div>
-      </fieldset>
-      <fieldset class="form__field">
-        <legend class="form__legend">Способ оплаты:</legend>
-        <div class="form__radio-groups">
-          <div class="form__radio-group">
-            <input
-              type="radio"
-              name="payment"
-              id="card"
-              value="card"
-              class="form__input"
-            />
-            <label for="card" class="form__label">Банковская карта</label>
-          </div>
-          <div class="form__radio-group">
-            <input
-              type="radio"
-              name="payment"
-              id="cash"
-              value="cash"
-              class="form__input"
-            />
-            <label for="cash" class="form__label">Наличные</label>
-          </div>
-          <div class="form__radio-group">
-            <input
-              type="radio"
-              name="payment"
-              id="invoice"
-              value="invoice"
-              class="form__input"
-            />
-            <label for="invoice" class="form__label"
-              >Счет на юридическое лицо</label
-            >
-          </div>
-          <p class="form__error-msg" id="paymentError"></p>
-        </div>
-      </fieldset>
-      <div class="form__btns">
-        <button type="submit">Рассчитать</button>
-        <button type="button">Очистить</button>
-      </div>
-    </form>
-    <p class="price-paragraph" id="priceResult"></p>
+      </form>
+      <p class="price-paragraph" id="pricePar">
+        Приблизительная стоимость автомобиля:
+        <span class="price-result" id="priceResult"></span>
+      </p>
+    </main>
     <script src="assets/script/script.js"></script>
   </body>
 </html>
