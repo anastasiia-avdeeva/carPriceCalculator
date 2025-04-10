@@ -1,13 +1,3 @@
-const carPriceInfo = {
-  basePrice: 0,
-  fuel: 1,
-  volume: 1,
-  transmission: 0,
-  condition: 1,
-  owners: 1,
-  payment: 1,
-};
-
 const carForm = document.forms.carForm;
 
 const makeInput = carForm.elements.make;
@@ -35,6 +25,7 @@ const ownersError = document.getElementById("ownersError");
 const paymentInput = carForm.elements.payment;
 const paymentError = document.getElementById("paymentError");
 
+const resetBtn = document.getElementById("resetBtn");
 const priceResultElem = document.getElementById("priceResult");
 
 const models = {
@@ -43,6 +34,30 @@ const models = {
   Mazda: ["Mazda 3", "Mazda CX-5", "Mazda 6"],
   Jaguar: ["Jaguar F-type", "Jaguar XE", "Jaguar F-Pace"],
 };
+
+const initialCarPriceInfo = {
+  basePrice: 0,
+  fuel: 1,
+  volume: 1,
+  transmission: 0,
+  condition: 1,
+  owners: 1,
+  payment: 1,
+};
+
+let carPriceInfo = { ...initialCarPriceInfo };
+
+const initialFormValidity = {
+  make: false,
+  model: false,
+  fuel: false,
+  volume: false,
+  transmission: false,
+  carCondition: false,
+  payment: false,
+};
+
+let formValidity = { ...initialFormValidity };
 
 const basePrices = {
   "Renault Duster": 1200000,
@@ -91,16 +106,6 @@ const numOfOwnersPriceFactor = {
 
 const paymentPriceFactor = { card: 1, cash: 0.95, invoice: 1.05 };
 
-const formValidity = {
-  make: false,
-  model: false,
-  fuel: false,
-  volume: false,
-  transmission: false,
-  carCondition: false,
-  payment: false,
-};
-
 const errorMsgs = {
   noMakeErrorMsg: "Пожалуйста, выберите марку автомобиля",
   noModelErrorMsg: "Пожалуйста, выберите модель автомобиля",
@@ -114,31 +119,74 @@ const errorMsgs = {
   noPaymentErrorMsg: "Пожалуйста, выберите способ оплаты",
 };
 
-function updateValidity(key, isValid) {
-  formValidity[key] = isValid;
-}
+carForm.addEventListener("change", processFormChange);
 
-function toggleDisabledState(element, disable = true) {
-  disable
-    ? element.setAttribute("disabled", true)
-    : element.removeAttribute("disabled");
+const inputTypeHandlers = new Map([
+  ["make", () => processRadioOrSelectChange(makeError, "make")],
+  ["model", () => processRadioOrSelectChange(modelError, "model")],
+  ["fuel", () => processRadioOrSelectChange(fuelError, "fuel")],
+  ["engineVolume", () => processVolumeChange()],
+  [
+    "transmission",
+    () => processRadioOrSelectChange(transmissionError, "transmission"),
+  ],
+  [
+    "carCondition",
+    () => processRadioOrSelectChange(conditionError, "carCondition"),
+  ],
+  ["numOfOwners", () => processRadioOrSelectChange(ownersError, "numOfOwners")],
+  ["payment", () => processRadioOrSelectChange(paymentError, "payment")],
+]);
+
+function processFormChange(evt) {
+  hideOrShowElem(priceResultElem);
+  const input = evt.target;
+  if (inputTypeHandlers.has(input.name)) {
+    inputTypeHandlers.get(input.name)();
+  } else {
+    return;
+  }
 }
 
 function hideOrShowElem(elem, hide = true) {
   hide ? (elem.style.display = "none") : (elem.style.display = "block");
 }
 
-function pasteMsg(element, message) {
-  element.textContent = message;
-}
+const priceInfoUpdaters = {
+  model: () => updateCarPriceInfo("basePrice", basePrices[modelInput.value]),
+  fuel: () => updateCarPriceInfo("fuel", fuelPriceFactor[fuelInput.value]),
+  transmission: () =>
+    updateCarPriceInfo(
+      "transmission",
+      transmissionPriceChange[transmissionInput.value]
+    ),
+  carCondition: () => {
+    updateCarPriceInfo("condition", conditionPriceFactor[conditionInput.value]);
+    toggleOwnersState(conditionInput.value);
+  },
+  numOfOwners: () =>
+    updateCarPriceInfo("owners", numOfOwnersPriceFactor[ownersInput.value]),
+  payment: () =>
+    updateCarPriceInfo("payment", paymentPriceFactor[paymentInput.value]),
+};
 
-function toggleErrorMsg(condition, element, msg) {
-  if (condition) {
-    pasteMsg(element, "");
-    hideOrShowElem(element);
-  } else {
-    pasteMsg(element, msg);
-    hideOrShowElem(element, false);
+function processRadioOrSelectChange(errorElem, name) {
+  if (name === "make") {
+    showModels(makeInput.value);
+  }
+
+  const updater = priceInfoUpdaters[name];
+  if (updater) {
+    updater();
+  }
+
+  if (!name === "make") {
+    calculatePrice();
+  }
+
+  toggleErrorMsg(true, errorElem, "");
+  if (!formValidity[name]) {
+    updateValidity(name, true);
   }
 }
 
@@ -167,19 +215,55 @@ function showModels(make) {
   toggleDisabledState(modelInput, false);
 }
 
+function toggleDisabledState(element, disable = true) {
+  disable
+    ? element.setAttribute("disabled", true)
+    : element.removeAttribute("disabled");
+}
+
+function updateCarPriceInfo(key, value) {
+  carPriceInfo[key] = value;
+}
+
+function pasteMsg(element, message) {
+  element.textContent = message;
+}
+
+function toggleErrorMsg(condition, element, msg) {
+  if (condition) {
+    pasteMsg(element, "");
+    hideOrShowElem(element);
+  } else {
+    pasteMsg(element, msg);
+    hideOrShowElem(element, false);
+  }
+}
+
 function calculatePrice() {
   const { basePrice, fuel, volume, transmission, condition, owners, payment } =
     carPriceInfo;
   const price =
     basePrice * fuel * volume * condition * owners * payment + transmission;
+
   priceResultElem.textContent = new Intl.NumberFormat("ru-RU", {
     style: "currency",
     currency: "rub",
   }).format(price);
 }
 
-function updateCarPriceInfo(key, value) {
-  carPriceInfo[key] = value;
+function updateValidity(key, isValid) {
+  formValidity[key] = isValid;
+}
+
+function processVolumeChange() {
+  const volume = volumeInput.value;
+  const [valid, msg] = isVolumeValid(volume);
+  if (valid) {
+    updateCarPriceInfo("volume", calcVolumePriceFactor(volume));
+    calculatePrice();
+  }
+  updateValidity("volume", valid);
+  toggleErrorMsg(valid, volumeError, msg);
 }
 
 function isVolumeValid(volume) {
@@ -209,17 +293,6 @@ function calcVolumePriceFactor(volume) {
   }
 }
 
-function processVolumeChange() {
-  const volume = volumeInput.value;
-  const [valid, msg] = isVolumeValid(volume);
-  if (valid) {
-    updateCarPriceInfo("volume", calcVolumePriceFactor(volume));
-    calculatePrice();
-  }
-  updateValidity("volume", valid);
-  toggleErrorMsg(valid, volumeError, msg);
-}
-
 function toggleOwnersState(conditionValue) {
   if (conditionValue === "used") {
     hideOrShowElem(ownersField, false);
@@ -230,74 +303,59 @@ function toggleOwnersState(conditionValue) {
   }
 }
 
-const priceInfoUpdaters = {
-  model: () => updateCarPriceInfo("basePrice", basePrices[modelInput.value]),
-  fuel: () => updateCarPriceInfo("fuel", fuelPriceFactor[fuelInput.value]),
-  transmission: () =>
-    updateCarPriceInfo(
-      "transmission",
-      transmissionPriceChange[transmissionInput.value]
-    ),
-  carCondition: () => {
-    updateCarPriceInfo("condition", conditionPriceFactor[conditionInput.value]);
-    toggleOwnersState(conditionInput.value);
-  },
-  numOfOwners: () =>
-    updateCarPriceInfo("owners", numOfOwnersPriceFactor[ownersInput.value]),
-  payment: () =>
-    updateCarPriceInfo("payment", paymentPriceFactor[paymentInput.value]),
+carForm.addEventListener("submit", submitForm);
+
+function submitForm(evt) {
+  evt.preventDefault();
+  if (isFormFilled()) {
+    hideOrShowElem(priceResultElem, false);
+    return;
+  }
+  showMissingFields();
+}
+
+function isFormFilled() {
+  return Object.values(formValidity).every((value) => value === true);
+}
+
+const fieldErrors = {
+  make: [makeError, errorMsgs.noMakeErrorMsg],
+  model: [modelError, errorMsgs.noModelErrorMsg],
+  fuel: [fuelError, errorMsgs.noFuelErrorMsg],
+  volume: [volumeError, errorMsgs.noVolumeErrorMsg],
+  transmission: [transmissionError, errorMsgs.noTransmissionErrorMsg],
+  carCondition: [conditionError, errorMsgs.noConditionErrorMsg],
+  numOfOwners: [ownersError, errorMsgs.noOwnersErrorMsg],
+  payment: [paymentError, errorMsgs.noPaymentErrorMsg],
 };
 
-function processRadioOrSelectChange(errorElem, name) {
-  if (name === "make") {
-    showModels(makeInput.value);
-    return;
-  }
-
-  const updater = priceInfoUpdaters[name];
-  if (updater) {
-    console.log(carPriceInfo);
-    updater();
-  }
-
-  calculatePrice();
-  toggleErrorMsg(true, errorElem, "");
-  if (!formValidity[name]) {
-    updateValidity(name, true);
+function showMissingFields() {
+  for (let field in formValidity) {
+    if (!formValidity[field] && fieldErrors[field]) {
+      const [erElem, erMsg] = fieldErrors[field];
+      toggleErrorMsg(false, erElem, erMsg);
+    }
   }
 }
 
-const inputTypeHandlers = new Map([
-  ["make", () => processRadioOrSelectChange(makeError, "make")],
-  ["model", () => processRadioOrSelectChange(modelError, "model")],
-  ["fuel", () => processRadioOrSelectChange(fuelError, "fuel")],
-  ["engineVolume", () => processVolumeChange()],
-  [
-    "transmission",
-    () => processRadioOrSelectChange(transmissionError, "transmission"),
-  ],
-  [
-    "carCondition",
-    () => processRadioOrSelectChange(conditionError, "carCondition"),
-  ],
-  ["numOfOwners", () => processRadioOrSelectChange(ownersError, "numOfOwners")],
-  ["payment", () => processRadioOrSelectChange(paymentError, "payment")],
-]);
+resetBtn.addEventListener("click", resetForm);
 
-function processFormChange(evt) {
-  const input = evt.target;
-  if (inputTypeHandlers.has(input.name)) {
-    inputTypeHandlers.get(input.name)();
-  } else {
-    return;
+function resetForm() {
+  carForm.reset();
+  deleteAllErrors();
+  toggleOwnersState("new");
+  resetObject(carPriceInfo, initialCarPriceInfo);
+  resetObject(formValidity, initialFormValidity);
+  return;
+}
+
+function deleteAllErrors() {
+  for (let field in fieldErrors) {
+    const [erElem] = fieldErrors[field];
+    toggleErrorMsg(true, erElem);
   }
 }
 
-// function submitForm(evt) {
-//   evt.preventDefault();
-//   // check if all inputs are valid
-//   regForm.reset();
-// }
-
-carForm.addEventListener("change", processFormChange);
-// carForm.addEventListener("submit", submitForm);
+function resetObject(currentObj, initialObject) {
+  Object.assign(currentObj, initialObject);
+}
