@@ -8,7 +8,7 @@ body {
   margin: 20px 50px;
 }
 
-#ownersField {
+.form__field--hidden {
   display: none;
 }
 
@@ -35,3 +35,7 @@ body {
 .form__input--num {
   width: 50px;
 }
+
+// .price-paragraph {
+//   display: none;
+// }
