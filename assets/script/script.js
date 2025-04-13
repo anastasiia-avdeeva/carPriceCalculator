@@ -179,9 +179,7 @@ const priceInfoUpdaters = {
 
 function processRadioOrSelectChange(errorElem, name) {
   if (name === "make") {
-    showModels(makeInput.value);
-    carPriceInfo.basePrice = 0;
-    updateValidity("model", false);
+    handleModelChange();
   }
 
   const updater = priceInfoUpdaters[name];
@@ -194,6 +192,12 @@ function processRadioOrSelectChange(errorElem, name) {
   if (!formValidity[name]) {
     updateValidity(name, true);
   }
+}
+
+function handleModelChange() {
+  showModels(makeInput.value);
+  carPriceInfo.basePrice = 0;
+  updateValidity("model", false);
 }
 
 function createModelOption(model, placeholder = true) {
