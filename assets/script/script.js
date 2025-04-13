@@ -1,4 +1,5 @@
 const carForm = document.forms.carForm;
+let price;
 
 const makeInput = carForm.elements.make;
 const makeError = document.getElementById("makeError");
@@ -247,13 +248,8 @@ function toggleErrorMsg(condition, element, msg) {
 function calculatePrice() {
   const { basePrice, fuel, volume, transmission, condition, owners, payment } =
     carPriceInfo;
-  const price =
+  price =
     basePrice * fuel * volume * condition * owners * payment + transmission;
-
-  priceResultElem.textContent = new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "rub",
-  }).format(price);
 }
 
 function updateValidity(key, isValid) {
@@ -313,14 +309,22 @@ carForm.addEventListener("submit", submitForm);
 function submitForm(evt) {
   evt.preventDefault();
   if (isFormFilled()) {
-    hideOrShowElem(priceParElem, false);
+    showPrice();
     return;
   }
   showMissingFields();
 }
 
 function isFormFilled() {
-  return Object.values(formValidity).every((value) => value === true);
+  return Object.values(formValidity).every((value) => !!value);
+}
+
+function showPrice() {
+  priceResultElem.textContent = new Intl.NumberFormat("ru-RU", {
+    style: "currency",
+    currency: "rub",
+  }).format(price);
+  hideOrShowElem(priceParElem, false);
 }
 
 const fieldErrors = {
