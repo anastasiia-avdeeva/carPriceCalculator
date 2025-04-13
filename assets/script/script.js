@@ -83,10 +83,10 @@ const fuelPriceFactor = {
 };
 
 const engVolPriceFactor = {
-  1.6: 1.0,
-  2.0: 1.1,
-  2.5: 1.2,
-  3.5: 1.3,
+  factor1: 1.0,
+  factor2: 1.1,
+  factor3: 1.2,
+  factor4: 1.3,
 };
 
 const transmissionPriceChange = {
@@ -288,13 +288,13 @@ function isVolumeValid(volume) {
 
 function calcVolumePriceFactor(volume) {
   if (volume <= 1.6) {
-    return engVolPriceFactor[1.6];
+    return engVolPriceFactor.factor1;
   } else if (volume <= 2.0) {
-    return engVolPriceFactor[2.0];
+    return engVolPriceFactor.factor2;
   } else if (volume <= 2.5) {
-    return engVolPriceFactor[2.5];
+    return engVolPriceFactor.factor3;
   } else {
-    return engVolPriceFactor[3.5];
+    return engVolPriceFactor.factor4;
   }
 }
 
