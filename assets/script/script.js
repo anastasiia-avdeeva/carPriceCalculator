@@ -149,7 +149,7 @@ function processFormChange(evt) {
   }
 }
 
-function hideOrShowElem(elem, hide = true, block = true) {
+function hideOrShowElem(elem, hide = true) {
   hide ? (elem.style.display = "none") : (elem.style.display = "block");
 }
 
@@ -174,6 +174,8 @@ const priceInfoUpdaters = {
 function processRadioOrSelectChange(errorElem, name) {
   if (name === "make") {
     showModels(makeInput.value);
+    carPriceInfo.basePrice = 0;
+    updateValidity("model", false);
   }
 
   const updater = priceInfoUpdaters[name];
