@@ -100,6 +100,11 @@ const conditionPriceFactor = {
   used: 0.75,
 };
 
+const ownersStates = {
+  USED: "used",
+  NEW: "new",
+};
+
 const numOfOwnersPriceFactor = {
   "1-2": 1.0,
   "3+": 0.9,
@@ -294,10 +299,10 @@ function calcVolumePriceFactor(volume) {
 }
 
 function toggleOwnersState(conditionValue) {
-  if (conditionValue === "used") {
+  if (conditionValue === ownersStates.USED) {
     hideOrShowElem(ownersField, false);
     formValidity.numOfOwners = true;
-  } else if (conditionValue === "new") {
+  } else if (conditionValue === ownersStates.NEW) {
     hideOrShowElem(ownersField);
     delete formValidity.numOfOwners;
   }
@@ -343,7 +348,7 @@ resetBtn.addEventListener("click", resetForm);
 function resetForm() {
   carForm.reset();
   deleteAllErrors();
-  toggleOwnersState("new");
+  toggleOwnersState(ownersStates.NEW);
   hideOrShowElem(priceParElem);
   resetObject(carPriceInfo, initialCarPriceInfo);
   resetObject(formValidity, initialFormValidity);
